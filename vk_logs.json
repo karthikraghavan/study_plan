@@ -1,0 +1,18 @@
+[
+  {
+    "date": "2026-06-14",
+    "subject": "chem",
+    "label": "Chemistry",
+    "sec": 5,
+    "note": "chem",
+    "time": "05:09 PM"
+  },
+  {
+    "date": "2026-06-14",
+    "subject": "math",
+    "label": "Math 3 Honors",
+    "sec": 7,
+    "note": "math 3",
+    "time": "05:09 PM"
+  }
+]

@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎓 Vidhyuth — Mission IVY LEAGUE Study Dashboard</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #2c3e6b;
+    --math-bg: #d6e4f0; --math-border: #2980b9; --math-text: #1a5276;
+    --chem-bg: #d5f5e3; --chem-border: #27ae60; --chem-text: #1e8449;
+    --csp-bg:  #fef9e7; --csp-border:  #f39c12; --csp-text:  #9a6700;
+    --gov-bg:  #fadbd8; --gov-border:  #e74c3c; --gov-text:  #a93226;
+    --gold: #f39c12; --green: #27ae60; --red: #e74c3c;
+    --bg: #f0f2f5; --card: #ffffff; --text: #2c3e50; --muted: #7f8c8d;
+    --radius: 12px; --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: white; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  }
+  .header-left h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header-left p  { font-size: 0.82rem; opacity: 0.75; margin-top: 3px; }
+  .header-right { text-align: right; }
+  .date-display { font-size: 1rem; font-weight: 600; }
+  .day-count    { font-size: 0.78rem; opacity: 0.7; margin-top: 2px; }
+
+  /* MAIN GRID */
+  .main { max-width: 1300px; margin: 0 auto; padding: 20px 20px 40px; display: grid;
+          grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media(max-width: 900px) { .main { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card-header { padding: 14px 20px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+  .card-body   { padding: 16px 20px; }
+
+  /* SUBJECT BLOCKS */
+  .subject-block { border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; border-left: 4px solid; }
+  .subj-math { background: var(--math-bg); border-color: var(--math-border); }
+  .subj-chem { background: var(--chem-bg); border-color: var(--chem-border); }
+  .subj-csp  { background: var(--csp-bg);  border-color: var(--csp-border); }
+  .subj-gov  { background: var(--gov-bg);  border-color: var(--gov-border); }
+  .subj-rest { background: #eaecee; border-color: #aaa; }
+  .subject-block h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 5px; }
+  .subject-block .topic { font-size: 0.84rem; margin-bottom: 10px; line-height: 1.5; }
+  .subject-block .time-slot { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+
+  /* KA LINKS */
+  .ka-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .ka-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: white; border: 1.5px solid currentColor;
+    border-radius: 6px; padding: 5px 11px; font-size: 0.78rem;
+    font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: all 0.18s; white-space: nowrap;
+  }
+  .ka-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+  .ka-btn.math { color: var(--math-text); }
+  .ka-btn.chem { color: var(--chem-text); }
+  .ka-btn.csp  { color: var(--csp-text); }
+  .ka-btn.gov  { color: var(--gov-text); }
+
+  /* TASKS */
+  .task-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+  .task-item:last-child { border-bottom: none; }
+  .task-cb { width: 18px; height: 18px; margin-top: 1px; cursor: pointer; accent-color: var(--green); flex-shrink: 0; }
+  .task-label { font-size: 0.84rem; line-height: 1.4; cursor: pointer; }
+  .task-label.done { text-decoration: line-through; color: var(--muted); }
+
+  /* TIMER */
+  .timer-card .card-header { background: var(--navy); color: white; }
+  .timer-display { font-size: 3rem; font-weight: 700; text-align: center; letter-spacing: 4px;
+                   color: var(--navy); padding: 18px 0 12px; font-variant-numeric: tabular-nums; }
+  .timer-subject { text-align: center; font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; }
+  .timer-select  { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 8px;
+                   font-size: 0.84rem; margin-bottom: 12px; background: white; }
+  .timer-note    { width: 100%; padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px;
+                   font-size: 0.83rem; margin-bottom: 12px; resize: none; height: 52px; }
+  .btn-row       { display: flex; gap: 8px; }
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.84rem; font-weight: 700;
+         cursor: pointer; transition: all 0.15s; flex: 1; }
+  .btn-start  { background: var(--green); color: white; }
+  .btn-stop   { background: var(--red); color: white; }
+  .btn-clear  { background: #ecf0f1; color: var(--text); }
+  .btn:hover  { opacity: 0.88; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+
+  /* SESSION LOG */
+  .log-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .log-table th { background: var(--navy); color: white; padding: 8px 10px; text-align: left; font-weight: 600; font-size: 0.76rem; }
+  .log-table td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+  .log-table tr:hover td { background: #f8f9fa; }
+  .log-total { font-weight: 700; background: #f8f9fa !important; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; }
+  .badge-math { background: var(--math-bg); color: var(--math-text); }
+  .badge-chem { background: var(--chem-bg); color: var(--chem-text); }
+  .badge-csp  { background: var(--csp-bg);  color: var(--csp-text); }
+  .badge-gov  { background: var(--gov-bg);  color: var(--gov-text); }
+
+  /* PROGRESS */
+  .progress-subject { margin-bottom: 14px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; }
+  .progress-bar   { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+  .progress-fill  { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .fill-math { background: linear-gradient(90deg, #2980b9, #5dade2); }
+  .fill-chem { background: linear-gradient(90deg, #27ae60, #52be80); }
+  .fill-csp  { background: linear-gradient(90deg, #f39c12, #f7c050); }
+  .fill-gov  { background: linear-gradient(90deg, #e74c3c, #f1948a); }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  @media(max-width:700px){ .stats-row { grid-template-columns: repeat(2,1fr); } }
+  .stat-card { background: var(--card); border-radius: 10px; padding: 14px 16px; text-align: center; box-shadow: var(--shadow); }
+  .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
+  .stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* WEEK STRIP */
+  .week-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .week-day { min-width: 80px; border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 0.76rem; border: 1.5px solid #e0e0e0; }
+  .week-day .wd-name { font-weight: 700; margin-bottom: 2px; }
+  .week-day .wd-date { color: var(--muted); font-size: 0.7rem; margin-bottom: 5px; }
+  .week-day .wd-subj { font-size: 0.68rem; font-weight: 600; padding: 2px 0; }
+  .week-day.today     { border-color: var(--navy); background: #eef1f8; }
+  .week-day.completed { background: #eafaf1; border-color: var(--green); }
+  .week-day.holiday   { background: #f5f5f5; color: var(--muted); }
+
+  /* FOOTER */
+  .full-width { grid-column: 1 / -1; }
+  .note-box { background: #fff8e1; border-left: 4px solid var(--gold); border-radius: 8px; padding: 12px 16px; font-size: 0.8rem; line-height: 1.6; color: #7d6608; }
+
+  /* QUICK LINKS GRID */
+  .qlink-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .qlink-item { display: flex; align-items: center; gap: 7px; padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; border: 1.5px solid transparent; transition: transform 0.15s; }
+  .qlink-item:hover { transform: translateY(-2px); }
+  .qlink-math { background: var(--math-bg); color: var(--math-text); border-color: var(--math-border); }
+  .qlink-chem { background: var(--chem-bg); color: var(--chem-text); border-color: var(--chem-border); }
+  .qlink-csp  { background: var(--csp-bg);  color: var(--csp-text);  border-color: var(--csp-border); }
+  .qlink-gov  { background: var(--gov-bg);  color: var(--gov-text);  border-color: var(--gov-border); }
+
+  .section-divider { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; }
+  .empty-log { text-align: center; color: var(--muted); font-size: 0.82rem; padding: 20px; }
+  .del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 1rem; padding: 0 4px; }
+  .del-btn:hover { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>🎓 Mission IVY LEAGUE — Study Dashboard</h1>
+    <p>Vidhyuth K · MHHS Summer Prep 2026 · School starts August 3</p>
+  </div>
+  <div class="header-right">
+    <div class="date-display" id="headerDate"></div>
+    <div class="day-count"   id="headerDayCount"></div>
+  </div>
+</div>
+
+<div style="max-width:1300px;margin:0 auto;padding:16px 20px 0">
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="statToday">0h 0m</div>
+      <div class="stat-label">Studied Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statWeek">0h 0m</div>
+      <div class="stat-label">This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal">0h 0m</div>
+      <div class="stat-label">Total Hours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statDaysLeft">—</div>
+      <div class="stat-label">Days Until School</div>
+    </div>
+  </div>
+
+  <!-- WEEK STRIP -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header" style="background:var(--navy);color:white">📆 This Week</div>
+    <div class="card-body">
+      <div class="week-strip" id="weekStrip"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- TODAY'S PLAN -->
+  <div class="card">
+    <div class="card-header" style="background:var(--navy);color:white">📚 Today's Study Plan</div>
+    <div class="card-body" id="todayPlan">
+      <p style="color:var(--muted);font-size:0.84rem">Loading today's plan…</p>
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="card timer-card">
+    <div class="card-header">⏱️ Session Timer & Log Entry</div>
+    <div class="card-body">
+      <div class="timer-display" id="timerDisplay">00:00:00</div>
+      <div class="timer-subject" id="timerStatus">Select subject and press Start</div>
+      <select class="timer-select" id="timerSubject">
+        <option value="">— Select Subject —</option>
+        <option value="math">📐 Math 3 Honors</option>
+        <option value="chem">🧪 Chemistry</option>
+        <option value="csp">💻 AP Computer Science Principles</option>
+        <option value="gov">⚖️ AP US Government & Politics</option>
+      </select>
+      <textarea class="timer-note" id="timerNote" placeholder="What did you study? (optional note)"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-start" id="btnStart" onclick="startTimer()">▶ Start</button>
+        <button class="btn btn-stop"  id="btnStop"  onclick="stopTimer()" disabled>⏹ Stop & Log</button>
+        <button class="btn btn-clear" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODAY'S TASK CHECKLIST -->
+  <div class="card">
+    <div class="card-header" style="background:var(--navy);color:white">✅ Today's Task Checklist</div>
+    <div class="card-body" id="taskList">
+      <p style="color:var(--muted);font-size:0.84rem">Loading tasks…</p>
+    </div>
+  </div>
+
+  <!-- PROGRESS TRACKER -->
+  <div class="card">
+    <div class="card-header" style="background:var(--navy);color:white">📊 Overall Subject Progress</div>
+    <div class="card-body">
+      <div class="progress-subject">
+        <div class="progress-label">
+          <span>📐 Math 3 Honors</span>
+          <span id="pct-math">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-math" id="bar-math" style="width:0%"></div></div>
+      </div>
+      <div class="progress-subject">
+        <div class="progress-label">
+          <span>🧪 Chemistry</span>
+          <span id="pct-chem">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-chem" id="bar-chem" style="width:0%"></div></div>
+      </div>
+      <div class="progress-subject">
+        <div class="progress-label">
+          <span>💻 AP Computer Science Principles</span>
+          <span id="pct-csp">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-csp" id="bar-csp" style="width:0%"></div></div>
+      </div>
+      <div class="progress-subject">
+        <div class="progress-label">
+          <span>⚖️ AP Gov & Politics</span>
+          <span id="pct-gov">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-gov" id="bar-gov" style="width:0%"></div></div>
+      </div>
+      <div style="margin-top:16px;font-size:0.75rem;color:var(--muted)">
+        Progress is based on completed task checkboxes above. Tick off topics as you finish each Khan Academy section.
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION LOG -->
+  <div class="card full-width">
+    <div class="card-header" style="background:var(--navy);color:white; justify-content:space-between">
+      <span>📋 Session Log — All Study Time</span>
+      <button onclick="clearAllLogs()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:0.75rem">Clear All</button>
+    </div>
+    <div class="card-body" style="overflow-x:auto">
+      <table class="log-table" id="logTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Subject</th>
+            <th>Duration</th>
+            <th>Target</th>
+            <th>Note</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="logBody">
+          <tr><td colspan="7" class="empty-log">No sessions logged yet. Start the timer above! 🚀</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="card full-width">
+    <div class="card-header" style="background:var(--navy);color:white">🔗 Khan Academy Quick Links</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+
+        <!-- Math -->
+        <div>
+          <div class="section-divider">📐 Math 3 Honors</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <a href="https://www.khanacademy.org/math/algebra-home/alg-absolute-value" target="_blank" class="qlink-item qlink-math">Unit 1 · Absolute Value Equations</a>
+            <a href="https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp" target="_blank" class="qlink-item qlink-math">Unit 2 · Radical Functions & Exponents</a>
+            <a href="https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:exponential-growth-decay" target="_blank" class="qlink-item qlink-math">Unit 3 · Linear & Exponential Models</a>
+            <a href="https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs" target="_blank" class="qlink-item qlink-math">Unit 4 · Logarithmic Functions</a>
+            <a href="https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq" target="_blank" class="qlink-item qlink-math">Unit 5 · Non-Linear Systems</a>
+            <a href="https://www.khanacademy.org/math/trigonometry/trig-function-graphs" target="_blank" class="qlink-item qlink-math">Unit 6 · Trigonometric Functions</a>
+            <a href="https://www.khanacademy.org/math/trigonometry/trig-equations-and-identities" target="_blank" class="qlink-item qlink-math">Unit 7 · Trig Applications & Identities</a>
+            <a href="https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-factor" target="_blank" class="qlink-item qlink-math">Unit 9 · Polynomials</a>
+            <a href="https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq" target="_blank" class="qlink-item qlink-math">Unit 10 · Rational Expressions</a>
+            <a href="https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:rational-functions" target="_blank" class="qlink-item qlink-math">Unit 11 · Rational Functions</a>
+          </div>
+        </div>
+
+        <!-- Chemistry -->
+        <div>
+          <div class="section-divider">🧪 Chemistry</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <a href="https://www.khanacademy.org/science/hs-chemistry" target="_blank" class="qlink-item qlink-chem">🏠 HS Chemistry Home</a>
+            <a href="https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:atomic-structure-and-properties" target="_blank" class="qlink-item qlink-chem">Unit 1 · Atoms, Compounds & Ions</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:atomic-models-and-periodicity" target="_blank" class="qlink-item qlink-chem">Unit 2 · Atomic models and periodicity</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:chemical-bonding" target="_blank" class="qlink-item qlink-chem">Unit 3 · Chemical bonding</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:chemical-reactions" target="_blank" class="qlink-item qlink-chem">Unit 4 · Chemical reactions</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:stoichiometry-and-the-mole" target="_blank" class="qlink-item qlink-chem">Unit 5 · Stoichiometry and the mole</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:states-of-matter" target="_blank" class="qlink-item qlink-chem">Unit 6 · States of matter</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:thermochemistry" target="_blank" class="qlink-item qlink-chem">Unit 7 · Thermochemistry</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:solutions-acids-and-bases" target="_blank" class="qlink-item qlink-chem">Unit 8 · Solutions, acids, and bases</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:reaction-rates-and-equilibrium" target="_blank" class="qlink-item qlink-chem">Unit 9: Reaction rates and equilibrium</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/x2613d8165d88df5e:nuclear-chemistry-hs" target="_blank" class="qlink-item qlink-chem">Unit 10 · Nuclear chemistry</a>
+            <a href="https://www.khanacademy.org/science/hs-chemistry/test/x2613d8165d88df5e:course-challenge" target="_blank" class="qlink-item qlink-chem">Unit 11 · Course Challenge</a>
+          </div>
+        </div>
+
+        <!-- AP CSP -->
+        <div>
+          <div class="section-divider">💻 AP Computer Science Principles</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles" target="_blank" class="qlink-item qlink-csp">🏠 AP CSP Home</a>
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles/x2d2f703b37b450a3:digital-information" target="_blank" class="qlink-item qlink-csp">Unit 1 · Digital Information</a>
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles/the-internet" target="_blank" class="qlink-item qlink-csp">Unit 2 · The Internet</a>
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles/programming-101" target="_blank" class="qlink-item qlink-csp">Unit 3 · Programming</a>
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles/data-analysis-101" target="_blank" class="qlink-item qlink-csp">Unit 4 · Data & Analysis</a>
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles/algorithms-101" target="_blank" class="qlink-item qlink-csp">Unit 5 · Algorithms</a>
+            <a href="https://www.khanacademy.org/computing/ap-computer-science-principles/cybersecurity-101" target="_blank" class="qlink-item qlink-csp">Unit 6 · Cybersecurity</a>
+          </div>
+        </div>
+
+        <!-- AP Gov -->
+        <div>
+          <div class="section-divider">⚖️ AP US Government & Politics</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <a href="https://www.khanacademy.org/humanities/ap-us-government-and-politics" target="_blank" class="qlink-item qlink-gov">🏠 AP Gov Home</a>
+            <a href="https://www.khanacademy.org/humanities/ap-us-government-and-politics/foundations-of-american-democracy" target="_blank" class="qlink-item qlink-gov">Unit 1 · Foundations of Democracy</a>
+            <a href="https://www.khanacademy.org/humanities/ap-us-government-and-politics/interactions-among-branches-of-government" target="_blank" class="qlink-item qlink-gov">Unit 2 · Branches of Government</a>
+            <a href="https://www.khanacademy.org/humanities/ap-us-government-and-politics/civil-liberties-and-civil-rights" target="_blank" class="qlink-item qlink-gov">Unit 3 · Civil Liberties & Rights</a>
+            <a href="https://www.khanacademy.org/humanities/ap-us-government-and-politics/american-political-ideologies-and-beliefs" target="_blank" class="qlink-item qlink-gov">Unit 4 · Political Ideologies</a>
+            <a href="https://www.khanacademy.org/humanities/ap-us-government-and-politics/political-participation" target="_blank" class="qlink-item qlink-gov">Unit 5 · Political Participation</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <div class="full-width">
+    <div class="note-box">
+      💡 <strong>Daily Schedule:</strong> 11:00–12:00 PM · Block 1 &nbsp;|&nbsp; 12:00–12:15 PM · Break &nbsp;|&nbsp; 12:15–1:15 PM · Block 2 &nbsp;|&nbsp; 1:15–1:30 PM · Break &nbsp;|&nbsp; 1:30–2:30 PM · Review & Practice &nbsp;|&nbsp;
+      <strong>Target:</strong> 3 hrs/day · Mon–Fri · School starts <strong>August 3, 2026</strong> 🎒
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SCHEDULE DATA
+// ═══════════════════════════════════════════════════════
+const SCHEDULE = [
+  {d:"2026-06-16",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 1: Absolute Value Equations — Solving abs value equations & compound inequalities",url:"https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:absolute-value-equations-functions"},b2:{s:"chem",label:"Chemistry",topic:"Intro + Unit 1: Atoms, Compounds & Ions — atomic structure, protons, neutrons, electrons",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:atomic-structure-and-properties"},tasks:["[Math] Watch: Absolute value equations intro","[Math] Practice: Solve 10 absolute value equations","[Chem] Watch: Atoms & elements overview","[Chem] Practice: Atomic number, mass, isotopes quiz"]},
+  {d:"2026-06-17",b1:{s:"csp",label:"AP CSP",topic:"Unit 1: Digital Information — Binary, bits, bytes, data representation",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/ap-csp-intro-digital-information"},b2:{s:"gov",label:"AP Gov",topic:"Unit 1: Foundations of American Democracy — Enlightenment, Constitution, Articles of Confederation",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/foundations-of-american-democracy"},tasks:["[CSP] Watch: Binary numbers intro","[CSP] Practice: Convert decimal ↔ binary","[Gov] Watch: Enlightenment thinkers (Locke, Rousseau)","[Gov] Practice: Articles of Confederation quiz"]},
+  {d:"2026-06-18",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 1 continued: Graphing absolute value functions & compound inequalities review",url:"https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:absolute-value-equations-functions"},b2:{s:"chem",label:"Chemistry",topic:"Unit 1 cont: Ions, isotopes, atomic mass; intro to Periodic Table",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:atomic-structure-and-properties"},tasks:["[Math] Watch: Graphing y = |x| and transformations","[Math] Practice: Compound inequalities problems","[Chem] Watch: Isotopes and atomic mass","[Chem] Practice: Periodic table notation quiz"]},
+  {d:"2026-06-19",b1:{s:"csp",label:"AP CSP",topic:"Unit 1 cont: Analog vs digital, compression, images & sound encoding",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/ap-csp-intro-digital-information"},b2:{s:"gov",label:"AP Gov",topic:"Unit 1 cont: Federalism, Separation of Powers, Checks & Balances",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/foundations-of-american-democracy"},tasks:["[CSP] Watch: Pixels, RGB, image compression","[CSP] Practice: Lossy vs lossless compression","[Gov] Watch: Federalism: dual vs cooperative","[Gov] Practice: Checks & balances diagram"]},
+  {d:"2026-06-20",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 2: Radical Functions — Simplifying radicals, rational exponents",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp"},b2:{s:"chem",label:"Chemistry",topic:"Unit 2: Electronic Structure — Bohr model, quantum numbers, electron configuration",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:electronic-structure"},tasks:["[Math] Watch: Simplifying square/cube roots","[Math] Practice: Rational exponent expressions","[Chem] Watch: Bohr model and energy levels","[Chem] Practice: Electron configuration worksheet"]},
+  {d:"2026-06-23",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 2 cont: Solving square/cube root equations, checking for extraneous solutions",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp"},b2:{s:"chem",label:"Chemistry",topic:"Unit 2 cont: Orbital notation, Aufbau principle, Hund's rule",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:electronic-structure"},tasks:["[Math] Watch: Square-root equations intro","[Math] Practice: Solve & check for extraneous solutions","[Chem] Watch: Electron configuration & orbital diagrams","[Chem] Practice: Write configs for first 20 elements"]},
+  {d:"2026-06-24",b1:{s:"csp",label:"AP CSP",topic:"Unit 2: The Internet — Packets, routing, protocols (HTTP, DNS, TCP/IP)",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/the-internet"},b2:{s:"gov",label:"AP Gov",topic:"Unit 2: Interactions Among Branches — Legislative process, veto, filibuster",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/interactions-among-branches-of-government"},tasks:["[CSP] Watch: How the Internet works (packets & routing)","[CSP] Practice: TCP/IP layers quiz","[Gov] Watch: How a bill becomes law","[Gov] Practice: Legislative process flowchart"]},
+  {d:"2026-06-25",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 2 cont: Translating radical graphs — shifts up/down/left/right",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp"},b2:{s:"chem",label:"Chemistry",topic:"Unit 3: Periodic Table — Trends: atomic radius, ionization energy, electronegativity",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:periodicity"},tasks:["[Math] Watch: Transformations of radical functions","[Math] Practice: Graph y = √(x+2) - 3 type problems","[Chem] Watch: Periodic trends overview","[Chem] Practice: Rank elements by atomic radius"]},
+  {d:"2026-06-26",b1:{s:"csp",label:"AP CSP",topic:"Unit 2 cont: Cybersecurity basics, encryption intro; fault tolerance in networks",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/the-internet"},b2:{s:"gov",label:"AP Gov",topic:"Unit 2 cont: Executive power, bureaucracy, judicial review (Marbury v Madison)",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/interactions-among-branches-of-government"},tasks:["[CSP] Watch: Encryption and public/private keys","[CSP] Practice: Cybersecurity scenarios quiz","[Gov] Watch: Executive orders & presidential power","[Gov] Practice: Judicial review landmark cases"]},
+  {d:"2026-06-27",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 3: Linear & Exponential Models — Linear vs exponential growth comparison",url:"https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:exponential-growth-decay"},b2:{s:"chem",label:"Chemistry",topic:"Unit 4: Chemical Bonds — Ionic vs covalent, Lewis structures, electronegativity",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-bonds"},tasks:["[Math] Watch: Linear vs exponential growth","[Math] Practice: Identify growth type from tables","[Chem] Watch: Ionic vs covalent bonds","[Chem] Practice: Draw Lewis structures for 5 molecules"]},
+  {d:"2026-06-30",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 3 cont: Writing exponential models — radioactive decay, population growth, percent change",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 4 cont: Polar vs nonpolar covalent bonds, VSEPR theory, molecular geometry",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-bonds"},tasks:["[Math] Watch: Constructing exponential models","[Math] Practice: Write model equations from word problems","[Chem] Watch: VSEPR theory & 3D shapes","[Chem] Practice: Identify molecular geometry (5 shapes)"]},
+  {d:"2026-07-01",b1:{s:"csp",label:"AP CSP",topic:"Unit 3: Programming — Variables, conditionals, loops, functions (Python/pseudocode)",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/programming-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 3: Civil Liberties & Civil Rights — Bill of Rights, 14th Amendment",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/civil-liberties-and-civil-rights"},tasks:["[CSP] Watch: Variables & assignment in programming","[CSP] Practice: Write a simple loop program","[Gov] Watch: First Amendment freedoms","[Gov] Practice: Bill of Rights matching quiz"]},
+  {d:"2026-07-02",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 4: Logarithmic Functions — Log properties, natural log (e), change of base",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 5: Gases — Kinetic molecular theory, ideal gas law (PV = nRT)",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:gases"},tasks:["[Math] Watch: Introduction to logarithms","[Math] Practice: Evaluate log expressions (product & quotient rules)","[Chem] Watch: Kinetic molecular theory","[Chem] Practice: PV=nRT calculation problems"]},
+  {d:"2026-07-03",b1:{s:"csp",label:"AP CSP",topic:"Unit 3 cont: Lists, algorithms, debugging; pseudocode practice",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/programming-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 3 cont: Selective incorporation, landmark cases (Brown v Board, Gideon, Roe)",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/civil-liberties-and-civil-rights"},tasks:["[CSP] Watch: Lists and iteration","[CSP] Practice: Trace through an algorithm","[Gov] Watch: Selective incorporation doctrine","[Gov] Practice: Match cases to rights protected"]},
+  {d:"2026-07-04",holiday:true,label:"🎆 Independence Day — No Study! Enjoy the holiday!"},
+  {d:"2026-07-07",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 4 cont: Solving exponential equations with logarithms",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 5 cont: Boyle's, Charles's, Gay-Lussac's Laws; Dalton's Law of Partial Pressures",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:gases"},tasks:["[Math] Watch: Solving exponential equations with logs","[Math] Practice: Solve 8 equations with unknown exponents","[Chem] Watch: Boyle's Law & Charles's Law","[Chem] Practice: Gas law calculation problems"]},
+  {d:"2026-07-08",b1:{s:"csp",label:"AP CSP",topic:"Unit 4: Data & Analysis — Spreadsheets, data cleaning, identifying patterns & trends",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/data-analysis-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 4: Political Ideologies — Liberal vs conservative, political socialization",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/american-political-ideologies-and-beliefs"},tasks:["[CSP] Watch: Working with data and spreadsheets","[CSP] Practice: Identify trends from a dataset","[Gov] Watch: Political spectrum & ideologies","[Gov] Practice: Ideology identification quiz"]},
+  {d:"2026-07-09",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 5: Non-Linear Systems — Solving line + parabola, line + circle using substitution",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq"},b2:{s:"chem",label:"Chemistry",topic:"Unit 6: Stoichiometry — Mole concept, molar mass, formula mass calculations",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-reactions"},tasks:["[Math] Watch: Intro to quadratic systems","[Math] Practice: Solve line + parabola systems","[Chem] Watch: The mole and Avogadro's number","[Chem] Practice: Molar mass calculations for 6 compounds"]},
+  {d:"2026-07-10",b1:{s:"csp",label:"AP CSP",topic:"Unit 5: Algorithms — Sorting, searching, efficiency; Big-O intuition",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/algorithms-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 4 cont: Public opinion, media influence, polling methodology",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/american-political-ideologies-and-beliefs"},tasks:["[CSP] Watch: Linear vs binary search","[CSP] Practice: Trace bubble sort step by step","[Gov] Watch: How public opinion is measured","[Gov] Practice: Evaluate a polling question for bias"]},
+  {d:"2026-07-11",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 5 cont: Solving systems graphically + Week Review (Units 1–5 Semester 1 recap)",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq"},b2:{s:"chem",label:"Chemistry",topic:"Unit 6 cont: Stoichiometry — Limiting reagents, percent yield",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-reactions"},tasks:["[Math] Practice: Mixed review — all 5 Semester 1 units","[Math] Self-grade: Identify 2 topics needing more work","[Chem] Watch: Limiting reagent concept","[Chem] Practice: Limiting reagent & percent yield problems"]},
+  {d:"2026-07-14",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 6: Trig Functions — Radians, unit circle, sin/cos/tan definitions",url:"https://www.khanacademy.org/math/trigonometry/trig-function-graphs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 7: Chemical Reactions — Types of reactions, balancing equations",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-reactions"},tasks:["[Math] Watch: Radians & degrees conversion","[Math] Practice: Unit circle — fill in all 16 angles","[Chem] Watch: Types of chemical reactions","[Chem] Practice: Balance 10 chemical equations"]},
+  {d:"2026-07-15",b1:{s:"csp",label:"AP CSP",topic:"Unit 6: Cybersecurity — Symmetric vs asymmetric encryption, phishing, malware",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/cybersecurity-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 5: Political Participation — Voting, elections, campaigns, PACs",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/political-participation"},tasks:["[CSP] Watch: Symmetric encryption (Caesar cipher → AES)","[CSP] Practice: Encryption/decryption scenario problems","[Gov] Watch: Voting rights & voter turnout","[Gov] Practice: Campaign finance & PAC quiz"]},
+  {d:"2026-07-16",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 6 cont: Graphing sine, cosine, tangent waves; amplitude, period & phase shift",url:"https://www.khanacademy.org/math/trigonometry/trig-function-graphs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 8: Acids & Bases — pH scale, strong vs weak acids/bases, neutralization",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:acids-and-bases"},tasks:["[Math] Watch: Graphing y = A·sin(Bx + C) + D","[Math] Practice: Identify A, B, period, amplitude from a graph","[Chem] Watch: pH scale and hydrogen ion concentration","[Chem] Practice: Strong vs weak acid/base identification"]},
+  {d:"2026-07-17",b1:{s:"csp",label:"AP CSP",topic:"Unit 7: Global Impact — Beneficial/harmful computing effects; ethics & bias in AI",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/impacts-of-computing"},b2:{s:"gov",label:"AP Gov",topic:"Unit 5 cont: Gerrymandering, Electoral College, interest groups",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/political-participation"},tasks:["[CSP] Watch: AI bias & ethical considerations","[CSP] Practice: Evaluate a real-world computing impact case","[Gov] Watch: Electoral College mechanics","[Gov] Practice: Gerrymandering map analysis"]},
+  {d:"2026-07-18",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 7: Trig Applications — Law of Sines, Law of Cosines; ambiguous case",url:"https://www.khanacademy.org/math/trigonometry/trig-equations-and-identities"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY REVIEW — Chapters 1–8: Atoms → Bonding → Gases → Reactions → Acids/Bases",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Law of Sines proof and examples","[Math] Practice: 6 Law of Sines triangle problems","[Chem] Review: Create a 1-page summary for each major unit","[Chem] Self-quiz: Khan Academy unit tests for weakest 2 topics"]},
+  {d:"2026-07-21",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 7 cont: Trig identities — Pythagorean, reciprocal; simplifying expressions",url:"https://www.khanacademy.org/math/trigonometry/trig-equations-and-identities"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY SELF-TEST — Khan Academy unit quizzes for all chapters covered",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Pythagorean identities","[Math] Practice: Simplify trig expressions using identities","[Chem] Take: KA unit test for Atomic Structure","[Chem] Take: KA unit test for Chemical Bonds"]},
+  {d:"2026-07-22",b1:{s:"csp",label:"AP CSP",topic:"AP CSP FULL REVIEW — All 7 units: digital info, internet, programming, data, security",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"AP Gov FULL REVIEW — All 5 units: key terms, landmark cases, political concepts",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Review: Make flashcards for Big Ideas","[CSP] Practice: 20 AP-style multiple choice questions","[Gov] Review: Landmark cases list + key amendments","[Gov] Practice: 3 FRQ-style short answer questions"]},
+  {d:"2026-07-23",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 9: Polynomials — Polynomial arithmetic, factoring (GCF, difference of squares, grouping)",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-factor"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY DEEP DIVE — Re-do exercises scored below 80% from self-test",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Factoring review — GCF, difference of squares","[Math] Practice: Factor 12 polynomials of increasing difficulty","[Chem] Re-do: Weakest unit from self-test","[Chem] Practice: Mixed stoichiometry word problems"]},
+  {d:"2026-07-24",b1:{s:"csp",label:"AP CSP",topic:"AP CSP PRACTICE — AP-style multiple choice + Create Performance Task prep",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"AP Gov PRACTICE — SCOTUS comparative FRQ + argumentation essay practice",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Practice: Full 70-question AP CSP mock (use College Board)","[CSP] Review: Grade mock & note weak areas","[Gov] Practice: SCOTUS comparison question (required FRQ format)","[Gov] Review: Grade FRQ using AP rubric"]},
+  {d:"2026-07-25",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 9 cont: Synthetic division; identifying end behavior and graph shape",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-factor"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY PROBLEM SETS — Mixed gas law + stoichiometry word problems",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:gases"},tasks:["[Math] Watch: Synthetic division explained","[Math] Practice: Divide polynomials using synthetic division","[Chem] Practice: Mixed gas law problems (10 questions)","[Chem] Practice: Combined stoichiometry set (10 questions)"]},
+  {d:"2026-07-28",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 10: Rational Expressions — Add, subtract, multiply, divide algebraic fractions",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY FINAL REVIEW — 1-page cheat sheet summary for every unit",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Adding/subtracting rational expressions","[Math] Practice: 10 rational expression operations","[Chem] Create: Unit 1–4 cheat sheet (handwritten)","[Chem] Create: Unit 5–8 cheat sheet (handwritten)"]},
+  {d:"2026-07-29",b1:{s:"csp",label:"AP CSP",topic:"FINAL AP CSP REVIEW — Big Ideas concept cards; programming task checklist",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"FINAL AP Gov REVIEW — Key terms, amendments, landmark cases reference sheet",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Create: 1-page Big Ideas summary card","[CSP] Review: All programming concepts (variables, loops, functions)","[Gov] Create: Top 10 landmark cases cheat sheet","[Gov] Review: All 27 amendments (especially 1st, 4th, 5th, 14th)"]},
+  {d:"2026-07-30",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 11: Rational Functions — Graphing; horizontal, vertical & slant asymptotes",url:"https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:rational-functions"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY MOCK TEST — Simulate a 30-question chemistry test (timed, no notes)",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Vertical & horizontal asymptotes of rational functions","[Math] Practice: Graph 4 rational functions, identify all asymptotes","[Chem] Mock: 30-question chemistry test (45 min)","[Chem] Review: Correct all wrong answers, understand each"]},
+  {d:"2026-07-31",b1:{s:"math",label:"Math 3 Honors",topic:"MATH 3 FULL REVIEW — Units 1–11: mixed practice of all problem types",url:"https://www.khanacademy.org/math/algebra2"},b2:{s:"chem",label:"Chemistry",topic:"FINAL BOOST — Redo any Chemistry exercises scored below 80%",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Mixed review: 2 problems from each of the 10 units","[Math] Self-grade: Note confidence level for each unit","[Chem] Redo: Top 3 weakest Chemistry sections","[Chem] Final check: Can you explain each concept in your own words?"]},
+  {d:"2026-08-01",holiday:true,label:"🎒 FINAL PREP DAY — Light review only. Organize notes & materials for school! School starts August 3!"},
+];
+
+const SUBJ_LABELS = {math:"Math 3 Honors",chem:"Chemistry",csp:"AP CSP",gov:"AP Gov"};
+const SUBJ_TARGETS = {math:"1h 30m",chem:"1h 30m",csp:"1h 30m",gov:"1h 30m"};
+
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function fmtTime(sec){
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  const s = sec % 60;
+  return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':');
+}
+
+function fmtDuration(sec){
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  if(h>0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function weekStart(d){
+  const dt = new Date(d+'T12:00:00');
+  const day = dt.getDay();
+  const diff = dt.getDate() - day + (day===0?-6:1);
+  const mon = new Date(dt);
+  mon.setDate(diff);
+  return mon.toISOString().slice(0,10);
+}
+
+function getLogs(){
+  try{ return JSON.parse(localStorage.getItem('vk_logs')||'[]'); }catch(e){ return []; }
+}
+function saveLogs(arr){
+  localStorage.setItem('vk_logs', JSON.stringify(arr));
+  writeLogsToServer(arr);
+}
+function getTasks(){
+  try{ return JSON.parse(localStorage.getItem('vk_tasks')||'{}'); }catch(e){ return {}; }
+}
+function saveTasks(obj){ localStorage.setItem('vk_tasks', JSON.stringify(obj)); }
+
+function getDayEntry(dateStr){
+  return SCHEDULE.find(s=>s.d===dateStr)||null;
+}
+
+// ═══════════════════════════════════════════════════════
+// FILE SYNC — vk_logs.json lives in the same folder as this page
+// ═══════════════════════════════════════════════════════
+const LOGS_FILENAME = 'vk_logs.json';
+let logsFileHandle = null;
+
+function idbOpen(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open('vk_dashboard_db',1);
+    req.onupgradeneeded = ()=> req.result.createObjectStore('handles');
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+async function idbGet(key){
+  const db = await idbOpen();
+  return new Promise((resolve,reject)=>{
+    const req = db.transaction('handles','readonly').objectStore('handles').get(key);
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+async function idbSet(key,val){
+  const db = await idbOpen();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction('handles','readwrite');
+    tx.objectStore('handles').put(val,key);
+    tx.oncomplete = ()=> resolve();
+    tx.onerror = ()=> reject(tx.error);
+  });
+}
+
+// Placeholder for compatibility - no longer needed
+function loadLogsFromHandle(){
+  return false;
+}
+
+// Save logs to server via /save-logs endpoint
+async function writeLogsToServer(logs){
+  try{
+    const resp = await fetch('/save-logs', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(logs)
+    });
+    if(!resp.ok) console.warn('Failed to save logs to server');
+  }catch(e){ console.warn('Error saving logs:', e); }
+}
+
+// Load logs from server on page startup
+async function initServerSync(){
+  try{
+    const resp = await fetch('/load-logs', {cache:'no-store'});
+    if(resp.ok){
+      const data = await resp.json();
+      if(Array.isArray(data)){
+        localStorage.setItem('vk_logs', JSON.stringify(data));
+        renderLog();
+        updateStats();
+        renderWeekStrip();
+      }
+    }
+  }catch(e){ console.warn('Could not load logs from server:', e); }
+}
+
+// ═══════════════════════════════════════════════════════
+// HEADER + STATS
+// ═══════════════════════════════════════════════════════
+function updateHeader(){
+  const now = new Date();
+  const options = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US',options);
+
+  const school = new Date('2026-08-03T00:00:00');
+  const diff = Math.ceil((school - now)/(1000*60*60*24));
+  document.getElementById('headerDayCount').textContent =
+    diff>0 ? `${diff} day${diff===1?'':'s'} until school starts · August 3, 2026` : 'School has started! 🎉';
+  document.getElementById('statDaysLeft').textContent = diff>0?diff:0;
+}
+
+function updateStats(){
+  const logs = getLogs();
+  const today = todayStr();
+  const ws = weekStart(today);
+
+  let todaySec=0, weekSec=0, totalSec=0;
+  logs.forEach(l=>{
+    totalSec += l.sec;
+    if(l.date===today) todaySec += l.sec;
+    if(l.date>=ws && l.date<=today) weekSec += l.sec;
+  });
+
+  document.getElementById('statToday').textContent = fmtDuration(todaySec);
+  document.getElementById('statWeek').textContent  = fmtDuration(weekSec);
+  document.getElementById('statTotal').textContent = fmtDuration(totalSec);
+}
+
+// ═══════════════════════════════════════════════════════
+// TODAY'S PLAN
+// ═══════════════════════════════════════════════════════
+function subjectClass(s){
+  return s==='math'?'subj-math':s==='chem'?'subj-chem':s==='csp'?'subj-csp':'subj-gov';
+}
+function kaClass(s){
+  return s==='math'?'math':s==='chem'?'chem':s==='csp'?'csp':'gov';
+}
+
+function renderTodayPlan(){
+  const today = todayStr();
+  const entry = getDayEntry(today);
+  const el = document.getElementById('todayPlan');
+
+  if(!entry){
+    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted)">
+      <div style="font-size:2rem">🎉</div>
+      <div style="margin-top:8px">No study scheduled today — enjoy the day!</div>
+      <div style="font-size:0.8rem;margin-top:4px">Study days run Mon–Fri, June 16 – August 1, 2026</div>
+    </div>`;
+    return;
+  }
+  if(entry.holiday){
+    el.innerHTML = `<div style="text-align:center;padding:30px;background:#f9f9f9;border-radius:8px">
+      <div style="font-size:2.5rem">🎆</div>
+      <div style="font-size:1.1rem;font-weight:700;margin-top:10px">${entry.label}</div>
+    </div>`;
+    return;
+  }
+
+  let html = `<div style="font-size:0.76rem;color:var(--muted);margin-bottom:14px;font-weight:600">⏰ Schedule: 11:00 AM → 2:30 PM &nbsp;|&nbsp; 3 hours total (inc. 30 min breaks)</div>`;
+
+  const blocks = [
+    {time:"11:00 AM – 12:00 PM",label:"Block 1",block:entry.b1},
+    {time:"12:15 PM – 1:15 PM", label:"Block 2",block:entry.b2},
+    {time:"1:30 PM – 2:30 PM",  label:"Review",  block:null},
+  ];
+
+  blocks.forEach(({time,label,block})=>{
+    if(!block){
+      html += `<div class="subject-block" style="background:#f9f9f9;border-left-color:#ccc;border-color:#ccc">
+        <div class="time-slot">${label} · ${time}</div>
+        <h3 style="color:#888">📝 Review & Practice</h3>
+        <div class="topic" style="color:#aaa">Re-do exercises from Block 1 & 2 · Khan Academy practice problems · Self-quiz</div>
+      </div>`;
+      return;
+    }
+    html += `<div class="subject-block ${subjectClass(block.s)}">
+      <div class="time-slot">${label} · ${time}</div>
+      <h3>${block.s==='math'?'📐':block.s==='chem'?'🧪':block.s==='csp'?'💻':'⚖️'} ${block.label}</h3>
+      <div class="topic">${block.topic}</div>
+      <div class="ka-links">
+        <a href="${block.url}" target="_blank" class="ka-btn ${kaClass(block.s)}">
+          📖 Open Khan Academy
+        </a>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+// TASK CHECKLIST
+// ═══════════════════════════════════════════════════════
+function renderTasks(){
+  const today = todayStr();
+  const entry = getDayEntry(today);
+  const el = document.getElementById('taskList');
+  const tasks = getTasks();
+  const todayTasks = tasks[today] || {};
+
+  if(!entry||entry.holiday||!entry.tasks){
+    el.innerHTML = `<div class="empty-log">No tasks for today 🎉</div>`;
+    updateProgress();
+    return;
+  }
+
+  let html = `<div style="font-size:0.76rem;color:var(--muted);margin-bottom:10px">Tick off each task as you complete it. Progress saves automatically.</div>`;
+
+  entry.tasks.forEach((task,i)=>{
+    const key = `task_${i}`;
+    const done = todayTasks[key]||false;
+    const taskId = `cb_${i}`;
+    html += `<div class="task-item">
+      <input type="checkbox" class="task-cb" id="${taskId}" ${done?'checked':''} onchange="toggleTask('${today}',${i},this.checked)">
+      <label class="task-label ${done?'done':''}" for="${taskId}">${task}</label>
+    </div>`;
+  });
+
+  // completion summary
+  const total = entry.tasks.length;
+  const done  = Object.values(todayTasks).filter(Boolean).length;
+  html += `<div style="margin-top:14px;padding:10px 14px;background:#f8f9fa;border-radius:8px;font-size:0.8rem;display:flex;align-items:center;gap:8px">
+    <span>${done===total?'🏆':'📌'}</span>
+    <span><strong>${done}/${total}</strong> tasks completed today</span>
+    ${done===total?'<span style="color:var(--green);font-weight:700">All done! Great work! 🎉</span>':''}
+  </div>`;
+
+  el.innerHTML = html;
+  updateProgress();
+}
+
+function toggleTask(date, idx, checked){
+  const tasks = getTasks();
+  if(!tasks[date]) tasks[date] = {};
+  tasks[date][`task_${idx}`] = checked;
+  saveTasks(tasks);
+  renderTasks();
+
+  // update label style
+  const label = document.querySelector(`label[for="cb_${idx}"]`);
+  if(label) label.className = `task-label ${checked?'done':''}`;
+}
+
+function updateProgress(){
+  const tasks = getTasks();
+  const allDays = SCHEDULE.filter(s=>!s.holiday&&s.tasks);
+  const perSubj = {math:{done:0,total:0},chem:{done:0,total:0},csp:{done:0,total:0},gov:{done:0,total:0}};
+
+  allDays.forEach(day=>{
+    const dt = tasks[day.d]||{};
+    day.tasks.forEach((task,i)=>{
+      const subj = task.startsWith('[Math')?'math':task.startsWith('[Chem')?'chem':task.startsWith('[CSP')?'csp':'gov';
+      perSubj[subj].total++;
+      if(dt[`task_${i}`]) perSubj[subj].done++;
+    });
+  });
+
+  ['math','chem','csp','gov'].forEach(s=>{
+    const pct = perSubj[s].total>0 ? Math.round(perSubj[s].done/perSubj[s].total*100) : 0;
+    document.getElementById(`pct-${s}`).textContent = `${pct}%`;
+    document.getElementById(`bar-${s}`).style.width = `${pct}%`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════
+let timerInterval = null;
+let timerSeconds = 0;
+let timerStartTime = null;
+
+function startTimer(){
+  const subj = document.getElementById('timerSubject').value;
+  if(!subj){ alert('Please select a subject first.'); return; }
+
+  timerStartTime = new Date();
+  timerInterval = setInterval(()=>{
+    timerSeconds++;
+    document.getElementById('timerDisplay').textContent = fmtTime(timerSeconds);
+    const label = SUBJ_LABELS[subj];
+    document.getElementById('timerStatus').textContent = `⏳ Studying: ${label}`;
+  },1000);
+
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnStop').disabled  = false;
+  document.getElementById('timerDisplay').style.color = 'var(--green)';
+}
+
+async function stopTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  const subj = document.getElementById('timerSubject').value;
+  const note = document.getElementById('timerNote').value.trim();
+  const sec  = timerSeconds;
+
+  if(sec < 60){
+    if(!confirm('Session is less than 1 minute. Log anyway?')) {
+      resetTimer(); return;
+    }
+  }
+
+  const logs = getLogs();
+  logs.unshift({
+    date: todayStr(),
+    subject: subj,
+    label: SUBJ_LABELS[subj],
+    sec: sec,
+    note: note,
+    time: new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
+  });
+  saveLogs(logs);
+
+  document.getElementById('timerStatus').textContent = `✅ ${fmtDuration(sec)} logged for ${SUBJ_LABELS[subj]}!`;
+  document.getElementById('timerDisplay').style.color = 'var(--navy)';
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled  = true;
+  document.getElementById('timerNote').value  = '';
+  timerSeconds = 0;
+  document.getElementById('timerDisplay').textContent = '00:00:00';
+
+  renderLog();
+  updateStats();
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerSeconds  = 0;
+  document.getElementById('timerDisplay').textContent = '00:00:00';
+  document.getElementById('timerDisplay').style.color = 'var(--navy)';
+  document.getElementById('timerStatus').textContent  = 'Select subject and press Start';
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled  = true;
+}
+
+// ═══════════════════════════════════════════════════════
+// SESSION LOG
+// ═══════════════════════════════════════════════════════
+function renderLog(){
+  const logs = getLogs();
+  const tbody = document.getElementById('logBody');
+
+  if(!logs.length){
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-log">No sessions logged yet. Start the timer above! 🚀</td></tr>`;
+    return;
+  }
+
+  const today = todayStr();
+  let html = '';
+  let totalSec = 0;
+
+  logs.forEach((l,i)=>{
+    totalSec += l.sec;
+    const target = SUBJ_TARGETS[l.subject]||'1h 30m';
+    const mins = Math.floor(l.sec/60);
+    const targetMins = 90;
+    const met = mins >= targetMins;
+    const pct = Math.min(Math.round(mins/targetMins*100),100);
+
+    html += `<tr>
+      <td>${l.date===today?'<strong>Today</strong>':l.date} ${l.time?`<span style="color:var(--muted);font-size:0.75rem">${l.time}</span>`:''}</td>
+      <td><span class="badge badge-${l.subject}">${l.label||l.subject}</span></td>
+      <td style="font-weight:700;${met?'color:var(--green)':'color:var(--red)'}">${fmtDuration(l.sec)}</td>
+      <td style="color:var(--muted)">${target} <span style="font-size:0.72rem">(${pct}%)</span></td>
+      <td style="color:var(--muted);font-style:italic">${l.note||'—'}</td>
+      <td>${met?'<span style="color:var(--green);font-weight:700">✅ Met</span>':'<span style="color:var(--red)">⏳ Short</span>'}</td>
+      <td><button class="del-btn" onclick="deleteLog(${i})" title="Delete">×</button></td>
+    </tr>`;
+  });
+
+  html += `<tr class="log-total">
+    <td colspan="2"><strong>TOTAL</strong></td>
+    <td colspan="4"><strong>${fmtDuration(totalSec)}</strong> across ${logs.length} session${logs.length===1?'':'s'}</td>
+    <td></td>
+  </tr>`;
+
+  tbody.innerHTML = html;
+}
+
+function deleteLog(i){
+  const logs = getLogs();
+  logs.splice(i,1);
+  saveLogs(logs);
+  renderLog();
+  updateStats();
+}
+
+function clearAllLogs(){
+  if(!confirm('Clear all session logs? This cannot be undone.')) return;
+  saveLogs([]);
+  renderLog();
+  updateStats();
+}
+
+// ═══════════════════════════════════════════════════════
+// WEEK STRIP
+// ═══════════════════════════════════════════════════════
+function renderWeekStrip(){
+  const today = todayStr();
+  const ws = weekStart(today);
+  const strip = document.getElementById('weekStrip');
+  const tasks = getTasks();
+  const logs  = getLogs();
+
+  // find week days (Mon–Fri) in current week
+  const days = [];
+  const mon = new Date(ws+'T12:00:00');
+  for(let i=0;i<5;i++){
+    const d = new Date(mon);
+    d.setDate(mon.getDate()+i);
+    days.push(d.toISOString().slice(0,10));
+  }
+
+  let html = '';
+  days.forEach(d=>{
+    const entry = getDayEntry(d);
+    const isToday = d===today;
+    const loggedToday = logs.some(l=>l.date===d);
+
+    if(!entry){
+      const dt = new Date(d+'T12:00:00');
+      html += `<div class="week-day" style="color:var(--muted)">
+        <div class="wd-name">${dt.toLocaleDateString('en-US',{weekday:'short'})}</div>
+        <div class="wd-date">${dt.getDate()}</div>
+        <div class="wd-subj" style="color:#ccc">—</div>
+      </div>`;
+      return;
+    }
+
+    const dt = new Date(d+'T12:00:00');
+    let dayClass = isToday?'today':loggedToday?'completed':'';
+    if(entry.holiday) dayClass='holiday';
+
+    const s1 = entry.b1?entry.b1.s:'';
+    const s2 = entry.b2?entry.b2.s:'';
+
+    html += `<div class="week-day ${dayClass}">
+      <div class="wd-name">${dt.toLocaleDateString('en-US',{weekday:'short'})}</div>
+      <div class="wd-date">${dt.getDate()}</div>
+      ${entry.holiday?'<div class="wd-subj">🎆 Holiday</div>':''}
+      ${s1?`<div class="wd-subj" style="color:${s1==='math'?'var(--math-text)':s1==='chem'?'var(--chem-text)':s1==='csp'?'var(--csp-text)':'var(--gov-text)'}">${s1.toUpperCase()}</div>`:''}
+      ${s2?`<div class="wd-subj" style="color:${s2==='math'?'var(--math-text)':s2==='chem'?'var(--chem-text)':s2==='csp'?'var(--csp-text)':'var(--gov-text)'}">${s2.toUpperCase()}</div>`:''}
+      ${isToday?'<div style="font-size:0.65rem;color:var(--navy);font-weight:800;margin-top:2px">TODAY</div>':''}
+      ${loggedToday&&!isToday?'<div style="font-size:0.7rem;color:var(--green)">✓ Done</div>':''}
+    </div>`;
+  });
+
+  strip.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+async function init(){
+  updateHeader();
+  await initServerSync();
+  renderTodayPlan();
+  renderTasks();
+  updateStats();
+  renderWeekStrip();
+}
+
+init();
+// Refresh clock every minute
+setInterval(()=>{ updateHeader(); updateStats(); }, 60000);
+</script>
+</body>
+</html>
