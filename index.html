@@ -445,9 +445,10 @@ function fmtTime(sec){
   return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':');
 }
 
-function fmtDuration(sec){
-  const h = Math.floor(sec/3600);
-  const m = Math.floor((sec%3600)/60);
+function fmtDuration(min){
+  const total = Math.round(min);
+  const h = Math.floor(total/60);
+  const m = total%60;
   return `${h}h ${m}m`;
 }
 
@@ -561,16 +562,16 @@ function updateStats(){
   const today = todayStr();
   const ws = weekStart(today);
 
-  let todaySec=0, weekSec=0, totalSec=0;
+  let todayMin=0, weekMin=0, totalMin=0;
   logs.forEach(l=>{
-    totalSec += l.sec;
-    if(l.date===today) todaySec += l.sec;
-    if(l.date>=ws && l.date<=today) weekSec += l.sec;
+    totalMin += l.min;
+    if(l.date===today) todayMin += l.min;
+    if(l.date>=ws && l.date<=today) weekMin += l.min;
   });
 
-  document.getElementById('statToday').textContent = fmtDuration(todaySec);
-  document.getElementById('statWeek').textContent  = fmtDuration(weekSec);
-  document.getElementById('statTotal').textContent = fmtDuration(totalSec);
+  document.getElementById('statToday').textContent = fmtDuration(todayMin);
+  document.getElementById('statWeek').textContent  = fmtDuration(weekMin);
+  document.getElementById('statTotal').textContent = fmtDuration(totalMin);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -719,6 +720,7 @@ async function stopTimer(){
   const subj = document.getElementById('timerSubject').value;
   const note = document.getElementById('timerNote').value.trim();
   const sec  = timerSeconds;
+  const min  = sec/60;
 
   if(sec < 60){
     if(!confirm('Session is less than 1 minute. Log anyway?')) {
@@ -731,13 +733,13 @@ async function stopTimer(){
     date: todayStr(),
     subject: subj,
     label: SUBJ_LABELS[subj],
-    sec: sec,
+    min: min,
     note: note,
     time: new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
   });
   saveLogs(logs);
 
-  document.getElementById('timerStatus').textContent = `✅ ${fmtDuration(sec)} logged for ${SUBJ_LABELS[subj]}!`;
+  document.getElementById('timerStatus').textContent = `✅ ${fmtDuration(min)} logged for ${SUBJ_LABELS[subj]}!`;
   document.getElementById('timerDisplay').style.color = 'var(--navy)';
   document.getElementById('btnStart').disabled = false;
   document.getElementById('btnStop').disabled  = true;
@@ -774,20 +776,19 @@ function renderLog(){
 
   const today = todayStr();
   let html = '';
-  let totalSec = 0;
+  let totalMin = 0;
 
   logs.forEach((l,i)=>{
-    totalSec += l.sec;
+    totalMin += l.min;
     const target = SUBJ_TARGETS[l.subject]||'1h 30m';
-    const mins = Math.floor(l.sec/60);
     const targetMins = 90;
-    const met = mins >= targetMins;
-    const pct = Math.min(Math.round(mins/targetMins*100),100);
+    const met = l.min >= targetMins;
+    const pct = Math.min(Math.round(l.min/targetMins*100),100);
 
     html += `<tr>
       <td>${l.date===today?'<strong>Today</strong>':l.date} ${l.time?`<span style="color:var(--muted);font-size:0.75rem">${l.time}</span>`:''}</td>
       <td><span class="badge badge-${l.subject}">${l.label||l.subject}</span></td>
-      <td style="font-weight:700;${met?'color:var(--green)':'color:var(--red)'}">${fmtDuration(l.sec)}</td>
+      <td style="font-weight:700;${met?'color:var(--green)':'color:var(--red)'}">${fmtTime(Math.round(l.min*60))}</td>
       <td style="color:var(--muted)">${target} <span style="font-size:0.72rem">(${pct}%)</span></td>
       <td style="color:var(--muted);font-style:italic">${l.note||'—'}</td>
       <td>${met?'<span style="color:var(--green);font-weight:700">✅ Met</span>':'<span style="color:var(--red)">⏳ Short</span>'}</td>
@@ -797,7 +798,7 @@ function renderLog(){
 
   html += `<tr class="log-total">
     <td colspan="2"><strong>TOTAL</strong></td>
-    <td colspan="4"><strong>${fmtDuration(totalSec)}</strong> across ${logs.length} session${logs.length===1?'':'s'}</td>
+    <td colspan="4"><strong>${fmtDuration(totalMin)}</strong> across ${logs.length} session${logs.length===1?'':'s'}</td>
     <td></td>
   </tr>`;
 
