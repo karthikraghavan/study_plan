@@ -127,7 +127,9 @@
   .week-day .wd-name { font-weight: 700; margin-bottom: 2px; }
   .week-day .wd-date { color: var(--muted); font-size: 0.7rem; margin-bottom: 5px; }
   .week-day .wd-subj { font-size: 0.68rem; font-weight: 600; padding: 2px 0; }
-  .week-day.today     { border-color: var(--navy); background: #eef1f8; }
+  .week-day.today     { border-color: var(--green); background: var(--green); color: white; }
+  .week-day.today .wd-date,
+  .week-day.today .wd-subj { color: rgba(255,255,255,0.9) !important; }
   .week-day.completed { background: #eafaf1; border-color: var(--green); }
   .week-day.holiday   { background: #f5f5f5; color: var(--muted); }
 
@@ -197,9 +199,9 @@
 
   <!-- TODAY'S PLAN -->
   <div class="card">
-    <div class="card-header" style="background:var(--navy);color:white">📚 Today's Study Plan</div>
+    <div class="card-header" style="background:var(--navy);color:white">💬 Today's Quote</div>
     <div class="card-body" id="todayPlan">
-      <p style="color:var(--muted);font-size:0.84rem">Loading today's plan…</p>
+      <p style="color:var(--muted);font-size:0.84rem">Loading today's quote…</p>
     </div>
   </div>
 
@@ -227,7 +229,7 @@
 
   <!-- TODAY'S TASK CHECKLIST -->
   <div class="card">
-    <div class="card-header" style="background:var(--navy);color:white">✅ Today's Task Checklist</div>
+    <div class="card-header" style="background:var(--navy);color:white">📚 Today's Study Plan</div>
     <div class="card-body" id="taskList">
       <p style="color:var(--muted);font-size:0.84rem">Loading tasks…</p>
     </div>
@@ -373,7 +375,7 @@
   <div class="full-width">
     <div class="note-box">
       💡 <strong>Daily Schedule:</strong> 11:00–12:00 PM · Block 1 &nbsp;|&nbsp; 12:00–12:15 PM · Break &nbsp;|&nbsp; 12:15–1:15 PM · Block 2 &nbsp;|&nbsp; 1:15–1:30 PM · Break &nbsp;|&nbsp; 1:30–2:30 PM · Review & Practice &nbsp;|&nbsp;
-      <strong>Target:</strong> 3 hrs/day · Mon–Fri · School starts <strong>August 3, 2026</strong> 🎒
+      <strong>Target:</strong> 3 hrs/day · Tue–Sun (Mondays off) · School starts <strong>August 3, 2026</strong> 🎒
     </div>
   </div>
 
@@ -389,36 +391,43 @@ const SCHEDULE = [
   {d:"2026-06-18",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 1 continued: Graphing absolute value functions & compound inequalities review",url:"https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:absolute-value-equations-functions"},b2:{s:"chem",label:"Chemistry",topic:"Unit 1 cont: Ions, isotopes, atomic mass; intro to Periodic Table",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:atomic-structure-and-properties"},tasks:["[Math] Watch: Graphing y = |x| and transformations","[Math] Practice: Compound inequalities problems","[Chem] Watch: Isotopes and atomic mass","[Chem] Practice: Periodic table notation quiz"]},
   {d:"2026-06-19",b1:{s:"csp",label:"AP CSP",topic:"Unit 1 cont: Analog vs digital, compression, images & sound encoding",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/ap-csp-intro-digital-information"},b2:{s:"gov",label:"AP Gov",topic:"Unit 1 cont: Federalism, Separation of Powers, Checks & Balances",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/foundations-of-american-democracy"},tasks:["[CSP] Watch: Pixels, RGB, image compression","[CSP] Practice: Lossy vs lossless compression","[Gov] Watch: Federalism: dual vs cooperative","[Gov] Practice: Checks & balances diagram"]},
   {d:"2026-06-20",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 2: Radical Functions — Simplifying radicals, rational exponents",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp"},b2:{s:"chem",label:"Chemistry",topic:"Unit 2: Electronic Structure — Bohr model, quantum numbers, electron configuration",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:electronic-structure"},tasks:["[Math] Watch: Simplifying square/cube roots","[Math] Practice: Rational exponent expressions","[Chem] Watch: Bohr model and energy levels","[Chem] Practice: Electron configuration worksheet"]},
+  {d:"2026-06-21",b1:{s:"csp",label:"AP CSP",topic:"Unit 1 cont: Text encoding — ASCII/Unicode, and lossy vs lossless compression deep dive",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/ap-csp-intro-digital-information"},b2:{s:"gov",label:"AP Gov",topic:"Unit 1 cont: Federalist Papers — Federalists vs Anti-Federalists, ratification debate",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/foundations-of-american-democracy"},tasks:["[CSP] Watch: ASCII and Unicode text encoding","[CSP] Practice: Lossy vs lossless compression scenarios","[Gov] Watch: Federalist No. 10 summary","[Gov] Practice: Federalists vs Anti-Federalists comparison quiz"]},
   {d:"2026-06-23",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 2 cont: Solving square/cube root equations, checking for extraneous solutions",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp"},b2:{s:"chem",label:"Chemistry",topic:"Unit 2 cont: Orbital notation, Aufbau principle, Hund's rule",url:"https://www.khanacademy.org/science/ap-chemistry-beta/x2eef969c74e0d802:electronic-structure"},tasks:["[Math] Watch: Square-root equations intro","[Math] Practice: Solve & check for extraneous solutions","[Chem] Watch: Electron configuration & orbital diagrams","[Chem] Practice: Write configs for first 20 elements"]},
   {d:"2026-06-24",b1:{s:"csp",label:"AP CSP",topic:"Unit 2: The Internet — Packets, routing, protocols (HTTP, DNS, TCP/IP)",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/the-internet"},b2:{s:"gov",label:"AP Gov",topic:"Unit 2: Interactions Among Branches — Legislative process, veto, filibuster",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/interactions-among-branches-of-government"},tasks:["[CSP] Watch: How the Internet works (packets & routing)","[CSP] Practice: TCP/IP layers quiz","[Gov] Watch: How a bill becomes law","[Gov] Practice: Legislative process flowchart"]},
   {d:"2026-06-25",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 2 cont: Translating radical graphs — shifts up/down/left/right",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:exp"},b2:{s:"chem",label:"Chemistry",topic:"Unit 3: Periodic Table — Trends: atomic radius, ionization energy, electronegativity",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:periodicity"},tasks:["[Math] Watch: Transformations of radical functions","[Math] Practice: Graph y = √(x+2) - 3 type problems","[Chem] Watch: Periodic trends overview","[Chem] Practice: Rank elements by atomic radius"]},
   {d:"2026-06-26",b1:{s:"csp",label:"AP CSP",topic:"Unit 2 cont: Cybersecurity basics, encryption intro; fault tolerance in networks",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/the-internet"},b2:{s:"gov",label:"AP Gov",topic:"Unit 2 cont: Executive power, bureaucracy, judicial review (Marbury v Madison)",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/interactions-among-branches-of-government"},tasks:["[CSP] Watch: Encryption and public/private keys","[CSP] Practice: Cybersecurity scenarios quiz","[Gov] Watch: Executive orders & presidential power","[Gov] Practice: Judicial review landmark cases"]},
   {d:"2026-06-27",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 3: Linear & Exponential Models — Linear vs exponential growth comparison",url:"https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:exponential-growth-decay"},b2:{s:"chem",label:"Chemistry",topic:"Unit 4: Chemical Bonds — Ionic vs covalent, Lewis structures, electronegativity",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-bonds"},tasks:["[Math] Watch: Linear vs exponential growth","[Math] Practice: Identify growth type from tables","[Chem] Watch: Ionic vs covalent bonds","[Chem] Practice: Draw Lewis structures for 5 molecules"]},
+  {d:"2026-06-28",b1:{s:"csp",label:"AP CSP",topic:"Unit 2 cont: IP addresses, DNS & how data is routed across networks",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/the-internet"},b2:{s:"gov",label:"AP Gov",topic:"Unit 2 cont: Federal bureaucracy — agencies, iron triangles, policy implementation",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/interactions-among-branches-of-government"},tasks:["[CSP] Watch: IP addresses and DNS explained","[CSP] Practice: Trace a request from browser to server","[Gov] Watch: Bureaucracy and iron triangles","[Gov] Practice: Match agencies to their functions"]},
   {d:"2026-06-30",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 3 cont: Writing exponential models — radioactive decay, population growth, percent change",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 4 cont: Polar vs nonpolar covalent bonds, VSEPR theory, molecular geometry",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-bonds"},tasks:["[Math] Watch: Constructing exponential models","[Math] Practice: Write model equations from word problems","[Chem] Watch: VSEPR theory & 3D shapes","[Chem] Practice: Identify molecular geometry (5 shapes)"]},
   {d:"2026-07-01",b1:{s:"csp",label:"AP CSP",topic:"Unit 3: Programming — Variables, conditionals, loops, functions (Python/pseudocode)",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/programming-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 3: Civil Liberties & Civil Rights — Bill of Rights, 14th Amendment",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/civil-liberties-and-civil-rights"},tasks:["[CSP] Watch: Variables & assignment in programming","[CSP] Practice: Write a simple loop program","[Gov] Watch: First Amendment freedoms","[Gov] Practice: Bill of Rights matching quiz"]},
   {d:"2026-07-02",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 4: Logarithmic Functions — Log properties, natural log (e), change of base",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 5: Gases — Kinetic molecular theory, ideal gas law (PV = nRT)",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:gases"},tasks:["[Math] Watch: Introduction to logarithms","[Math] Practice: Evaluate log expressions (product & quotient rules)","[Chem] Watch: Kinetic molecular theory","[Chem] Practice: PV=nRT calculation problems"]},
   {d:"2026-07-03",b1:{s:"csp",label:"AP CSP",topic:"Unit 3 cont: Lists, algorithms, debugging; pseudocode practice",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/programming-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 3 cont: Selective incorporation, landmark cases (Brown v Board, Gideon, Roe)",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/civil-liberties-and-civil-rights"},tasks:["[CSP] Watch: Lists and iteration","[CSP] Practice: Trace through an algorithm","[Gov] Watch: Selective incorporation doctrine","[Gov] Practice: Match cases to rights protected"]},
   {d:"2026-07-04",holiday:true,label:"🎆 Independence Day — No Study! Enjoy the holiday!"},
+  {d:"2026-07-05",b1:{s:"csp",label:"AP CSP",topic:"Unit 3 cont: Nested loops & list operations — iterating over data",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/programming-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 3 cont: Civil rights landmark cases — Brown v. Board, Tinker v. Des Moines",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/civil-liberties-and-civil-rights"},tasks:["[CSP] Watch: Nested loops and list traversal","[CSP] Practice: Write pseudocode using nested loops on a list","[Gov] Watch: Brown v. Board of Education explained","[Gov] Practice: Tinker v. Des Moines case analysis"]},
   {d:"2026-07-07",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 4 cont: Solving exponential equations with logarithms",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 5 cont: Boyle's, Charles's, Gay-Lussac's Laws; Dalton's Law of Partial Pressures",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:gases"},tasks:["[Math] Watch: Solving exponential equations with logs","[Math] Practice: Solve 8 equations with unknown exponents","[Chem] Watch: Boyle's Law & Charles's Law","[Chem] Practice: Gas law calculation problems"]},
   {d:"2026-07-08",b1:{s:"csp",label:"AP CSP",topic:"Unit 4: Data & Analysis — Spreadsheets, data cleaning, identifying patterns & trends",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/data-analysis-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 4: Political Ideologies — Liberal vs conservative, political socialization",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/american-political-ideologies-and-beliefs"},tasks:["[CSP] Watch: Working with data and spreadsheets","[CSP] Practice: Identify trends from a dataset","[Gov] Watch: Political spectrum & ideologies","[Gov] Practice: Ideology identification quiz"]},
   {d:"2026-07-09",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 5: Non-Linear Systems — Solving line + parabola, line + circle using substitution",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq"},b2:{s:"chem",label:"Chemistry",topic:"Unit 6: Stoichiometry — Mole concept, molar mass, formula mass calculations",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-reactions"},tasks:["[Math] Watch: Intro to quadratic systems","[Math] Practice: Solve line + parabola systems","[Chem] Watch: The mole and Avogadro's number","[Chem] Practice: Molar mass calculations for 6 compounds"]},
   {d:"2026-07-10",b1:{s:"csp",label:"AP CSP",topic:"Unit 5: Algorithms — Sorting, searching, efficiency; Big-O intuition",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/algorithms-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 4 cont: Public opinion, media influence, polling methodology",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/american-political-ideologies-and-beliefs"},tasks:["[CSP] Watch: Linear vs binary search","[CSP] Practice: Trace bubble sort step by step","[Gov] Watch: How public opinion is measured","[Gov] Practice: Evaluate a polling question for bias"]},
   {d:"2026-07-11",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 5 cont: Solving systems graphically + Week Review (Units 1–5 Semester 1 recap)",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq"},b2:{s:"chem",label:"Chemistry",topic:"Unit 6 cont: Stoichiometry — Limiting reagents, percent yield",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-reactions"},tasks:["[Math] Practice: Mixed review — all 5 Semester 1 units","[Math] Self-grade: Identify 2 topics needing more work","[Chem] Watch: Limiting reagent concept","[Chem] Practice: Limiting reagent & percent yield problems"]},
+  {d:"2026-07-12",b1:{s:"csp",label:"AP CSP",topic:"Unit 4 cont: Data visualization — charts, graphs, and spotting bias in data",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/data-analysis-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 4/5 cont: Political socialization & media's role in shaping public opinion",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/american-political-ideologies-and-beliefs"},tasks:["[CSP] Watch: Choosing the right chart for your data","[CSP] Practice: Identify misleading graphs (bias in data viz)","[Gov] Watch: Agents of political socialization","[Gov] Practice: Analyze a news source for media bias"]},
   {d:"2026-07-14",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 6: Trig Functions — Radians, unit circle, sin/cos/tan definitions",url:"https://www.khanacademy.org/math/trigonometry/trig-function-graphs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 7: Chemical Reactions — Types of reactions, balancing equations",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:chemical-reactions"},tasks:["[Math] Watch: Radians & degrees conversion","[Math] Practice: Unit circle — fill in all 16 angles","[Chem] Watch: Types of chemical reactions","[Chem] Practice: Balance 10 chemical equations"]},
   {d:"2026-07-15",b1:{s:"csp",label:"AP CSP",topic:"Unit 6: Cybersecurity — Symmetric vs asymmetric encryption, phishing, malware",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/cybersecurity-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 5: Political Participation — Voting, elections, campaigns, PACs",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/political-participation"},tasks:["[CSP] Watch: Symmetric encryption (Caesar cipher → AES)","[CSP] Practice: Encryption/decryption scenario problems","[Gov] Watch: Voting rights & voter turnout","[Gov] Practice: Campaign finance & PAC quiz"]},
   {d:"2026-07-16",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 6 cont: Graphing sine, cosine, tangent waves; amplitude, period & phase shift",url:"https://www.khanacademy.org/math/trigonometry/trig-function-graphs"},b2:{s:"chem",label:"Chemistry",topic:"Unit 8: Acids & Bases — pH scale, strong vs weak acids/bases, neutralization",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:acids-and-bases"},tasks:["[Math] Watch: Graphing y = A·sin(Bx + C) + D","[Math] Practice: Identify A, B, period, amplitude from a graph","[Chem] Watch: pH scale and hydrogen ion concentration","[Chem] Practice: Strong vs weak acid/base identification"]},
   {d:"2026-07-17",b1:{s:"csp",label:"AP CSP",topic:"Unit 7: Global Impact — Beneficial/harmful computing effects; ethics & bias in AI",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/impacts-of-computing"},b2:{s:"gov",label:"AP Gov",topic:"Unit 5 cont: Gerrymandering, Electoral College, interest groups",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/political-participation"},tasks:["[CSP] Watch: AI bias & ethical considerations","[CSP] Practice: Evaluate a real-world computing impact case","[Gov] Watch: Electoral College mechanics","[Gov] Practice: Gerrymandering map analysis"]},
   {d:"2026-07-18",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 7: Trig Applications — Law of Sines, Law of Cosines; ambiguous case",url:"https://www.khanacademy.org/math/trigonometry/trig-equations-and-identities"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY REVIEW — Chapters 1–8: Atoms → Bonding → Gases → Reactions → Acids/Bases",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Law of Sines proof and examples","[Math] Practice: 6 Law of Sines triangle problems","[Chem] Review: Create a 1-page summary for each major unit","[Chem] Self-quiz: Khan Academy unit tests for weakest 2 topics"]},
+  {d:"2026-07-19",b1:{s:"csp",label:"AP CSP",topic:"Unit 6/7 cont: Hashing & digital signatures — verifying data integrity",url:"https://www.khanacademy.org/computing/ap-computer-science-principles/cybersecurity-101"},b2:{s:"gov",label:"AP Gov",topic:"Unit 5 cont: Campaign finance — PACs, Super PACs, and FEC rules",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics/political-participation"},tasks:["[CSP] Watch: Hashing and digital signatures explained","[CSP] Practice: Verify data integrity scenario problems","[Gov] Watch: PACs vs Super PACs vs 501(c) groups","[Gov] Practice: Campaign finance rules matching quiz"]},
   {d:"2026-07-21",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 7 cont: Trig identities — Pythagorean, reciprocal; simplifying expressions",url:"https://www.khanacademy.org/math/trigonometry/trig-equations-and-identities"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY SELF-TEST — Khan Academy unit quizzes for all chapters covered",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Pythagorean identities","[Math] Practice: Simplify trig expressions using identities","[Chem] Take: KA unit test for Atomic Structure","[Chem] Take: KA unit test for Chemical Bonds"]},
   {d:"2026-07-22",b1:{s:"csp",label:"AP CSP",topic:"AP CSP FULL REVIEW — All 7 units: digital info, internet, programming, data, security",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"AP Gov FULL REVIEW — All 5 units: key terms, landmark cases, political concepts",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Review: Make flashcards for Big Ideas","[CSP] Practice: 20 AP-style multiple choice questions","[Gov] Review: Landmark cases list + key amendments","[Gov] Practice: 3 FRQ-style short answer questions"]},
   {d:"2026-07-23",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 9: Polynomials — Polynomial arithmetic, factoring (GCF, difference of squares, grouping)",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-factor"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY DEEP DIVE — Re-do exercises scored below 80% from self-test",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Factoring review — GCF, difference of squares","[Math] Practice: Factor 12 polynomials of increasing difficulty","[Chem] Re-do: Weakest unit from self-test","[Chem] Practice: Mixed stoichiometry word problems"]},
   {d:"2026-07-24",b1:{s:"csp",label:"AP CSP",topic:"AP CSP PRACTICE — AP-style multiple choice + Create Performance Task prep",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"AP Gov PRACTICE — SCOTUS comparative FRQ + argumentation essay practice",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Practice: Full 70-question AP CSP mock (use College Board)","[CSP] Review: Grade mock & note weak areas","[Gov] Practice: SCOTUS comparison question (required FRQ format)","[Gov] Review: Grade FRQ using AP rubric"]},
   {d:"2026-07-25",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 9 cont: Synthetic division; identifying end behavior and graph shape",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-factor"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY PROBLEM SETS — Mixed gas law + stoichiometry word problems",url:"https://www.khanacademy.org/science/hs-chemistry/x2ec2f6f830c9fb89:gases"},tasks:["[Math] Watch: Synthetic division explained","[Math] Practice: Divide polynomials using synthetic division","[Chem] Practice: Mixed gas law problems (10 questions)","[Chem] Practice: Combined stoichiometry set (10 questions)"]},
+  {d:"2026-07-26",b1:{s:"csp",label:"AP CSP",topic:"AP CSP Create Task Prep — Planning a program: inputs, outputs, algorithm design with pseudocode",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"AP Gov FRQ Practice #2 — Argumentation essay using a second required Supreme Court case",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Plan: Outline a program idea (inputs, outputs, algorithm)","[CSP] Practice: Write pseudocode for your planned program","[Gov] Practice: Write an argumentation essay (45 min, timed)","[Gov] Review: Self-grade essay using AP rubric"]},
   {d:"2026-07-28",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 10: Rational Expressions — Add, subtract, multiply, divide algebraic fractions",url:"https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:eq"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY FINAL REVIEW — 1-page cheat sheet summary for every unit",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Adding/subtracting rational expressions","[Math] Practice: 10 rational expression operations","[Chem] Create: Unit 1–4 cheat sheet (handwritten)","[Chem] Create: Unit 5–8 cheat sheet (handwritten)"]},
   {d:"2026-07-29",b1:{s:"csp",label:"AP CSP",topic:"FINAL AP CSP REVIEW — Big Ideas concept cards; programming task checklist",url:"https://www.khanacademy.org/computing/ap-computer-science-principles"},b2:{s:"gov",label:"AP Gov",topic:"FINAL AP Gov REVIEW — Key terms, amendments, landmark cases reference sheet",url:"https://www.khanacademy.org/humanities/ap-us-government-and-politics"},tasks:["[CSP] Create: 1-page Big Ideas summary card","[CSP] Review: All programming concepts (variables, loops, functions)","[Gov] Create: Top 10 landmark cases cheat sheet","[Gov] Review: All 27 amendments (especially 1st, 4th, 5th, 14th)"]},
   {d:"2026-07-30",b1:{s:"math",label:"Math 3 Honors",topic:"Unit 11: Rational Functions — Graphing; horizontal, vertical & slant asymptotes",url:"https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:rational-functions"},b2:{s:"chem",label:"Chemistry",topic:"CHEMISTRY MOCK TEST — Simulate a 30-question chemistry test (timed, no notes)",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Watch: Vertical & horizontal asymptotes of rational functions","[Math] Practice: Graph 4 rational functions, identify all asymptotes","[Chem] Mock: 30-question chemistry test (45 min)","[Chem] Review: Correct all wrong answers, understand each"]},
   {d:"2026-07-31",b1:{s:"math",label:"Math 3 Honors",topic:"MATH 3 FULL REVIEW — Units 1–11: mixed practice of all problem types",url:"https://www.khanacademy.org/math/algebra2"},b2:{s:"chem",label:"Chemistry",topic:"FINAL BOOST — Redo any Chemistry exercises scored below 80%",url:"https://www.khanacademy.org/science/hs-chemistry"},tasks:["[Math] Mixed review: 2 problems from each of the 10 units","[Math] Self-grade: Note confidence level for each unit","[Chem] Redo: Top 3 weakest Chemistry sections","[Chem] Final check: Can you explain each concept in your own words?"]},
   {d:"2026-08-01",holiday:true,label:"🎒 FINAL PREP DAY — Light review only. Organize notes & materials for school! School starts August 3!"},
+  {d:"2026-08-02",holiday:true,label:"🌤️ Rest Day — Relax and recharge before school starts tomorrow!"},
 ];
 
 const SUBJ_LABELS = {math:"Math 3 Honors",chem:"Chemistry",csp:"AP CSP",gov:"AP Gov"};
@@ -565,119 +574,97 @@ function updateStats(){
 }
 
 // ═══════════════════════════════════════════════════════
-// TODAY'S PLAN
+// TODAY'S QUOTE
 // ═══════════════════════════════════════════════════════
-function subjectClass(s){
-  return s==='math'?'subj-math':s==='chem'?'subj-chem':s==='csp'?'subj-csp':'subj-gov';
-}
-function kaClass(s){
-  return s==='math'?'math':s==='chem'?'chem':s==='csp'?'csp':'gov';
-}
+const QUOTES = [
+  {text:"It's not that I'm so smart, it's just that I stay with problems longer.", author:"Albert Einstein"},
+  {text:"Success is the sum of small efforts, repeated day in and day out.", author:"Robert Collier"},
+  {text:"The expert in anything was once a beginner.", author:"Helen Hayes"},
+  {text:"You don't have to be great to start, but you have to start to be great.", author:"Zig Ziglar"},
+  {text:"Push yourself, because no one else is going to do it for you.", author:"Unknown"},
+  {text:"Don't watch the clock; do what it does. Keep going.", author:"Sam Levenson"},
+  {text:"The future depends on what you do today.", author:"Mahatma Gandhi"},
+  {text:"A little progress each day adds up to big results.", author:"Unknown"},
+  {text:"Believe you can and you're halfway there.", author:"Theodore Roosevelt"},
+  {text:"Hard work beats talent when talent doesn't work hard.", author:"Tim Notke"},
+  {text:"It always seems impossible until it's done.", author:"Nelson Mandela"},
+  {text:"You are capable of more than you know.", author:"Unknown"},
+  {text:"Discipline is choosing between what you want now and what you want most.", author:"Abraham Lincoln"},
+  {text:"Mistakes are proof that you are trying.", author:"Unknown"},
+  {text:"The only way to do great work is to start before you feel ready.", author:"Unknown"},
+  {text:"Stay focused, go after your dreams, and keep moving toward your goals.", author:"LL Cool J"},
+  {text:"Difficult roads often lead to beautiful destinations.", author:"Unknown"},
+  {text:"Your only limit is your mind.", author:"Unknown"},
+  {text:"Don't wish it were easier; wish you were better.", author:"Jim Rohn"},
+  {text:"Small steps every day. That's how habits — and grades — are built.", author:"Unknown"},
+];
 
 function renderTodayPlan(){
   const today = todayStr();
-  const entry = getDayEntry(today);
   const el = document.getElementById('todayPlan');
 
-  if(!entry){
-    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted)">
-      <div style="font-size:2rem">🎉</div>
-      <div style="margin-top:8px">No study scheduled today — enjoy the day!</div>
-      <div style="font-size:0.8rem;margin-top:4px">Study days run Mon–Fri, June 16 – August 1, 2026</div>
-    </div>`;
-    return;
-  }
-  if(entry.holiday){
-    el.innerHTML = `<div style="text-align:center;padding:30px;background:#f9f9f9;border-radius:8px">
-      <div style="font-size:2.5rem">🎆</div>
-      <div style="font-size:1.1rem;font-weight:700;margin-top:10px">${entry.label}</div>
-    </div>`;
-    return;
-  }
+  // Pick a quote deterministically based on today's date so it stays the same all day
+  let hash = 0;
+  for(let i=0;i<today.length;i++) hash = (hash*31 + today.charCodeAt(i)) >>> 0;
+  const quote = QUOTES[hash % QUOTES.length];
 
-  let html = `<div style="font-size:0.76rem;color:var(--muted);margin-bottom:14px;font-weight:600">⏰ Schedule: 11:00 AM → 2:30 PM &nbsp;|&nbsp; 3 hours total (inc. 30 min breaks)</div>`;
-
-  const blocks = [
-    {time:"11:00 AM – 12:00 PM",label:"Block 1",block:entry.b1},
-    {time:"12:15 PM – 1:15 PM", label:"Block 2",block:entry.b2},
-    {time:"1:30 PM – 2:30 PM",  label:"Review",  block:null},
-  ];
-
-  blocks.forEach(({time,label,block})=>{
-    if(!block){
-      html += `<div class="subject-block" style="background:#f9f9f9;border-left-color:#ccc;border-color:#ccc">
-        <div class="time-slot">${label} · ${time}</div>
-        <h3 style="color:#888">📝 Review & Practice</h3>
-        <div class="topic" style="color:#aaa">Re-do exercises from Block 1 & 2 · Khan Academy practice problems · Self-quiz</div>
-      </div>`;
-      return;
-    }
-    html += `<div class="subject-block ${subjectClass(block.s)}">
-      <div class="time-slot">${label} · ${time}</div>
-      <h3>${block.s==='math'?'📐':block.s==='chem'?'🧪':block.s==='csp'?'💻':'⚖️'} ${block.label}</h3>
-      <div class="topic">${block.topic}</div>
-      <div class="ka-links">
-        <a href="${block.url}" target="_blank" class="ka-btn ${kaClass(block.s)}">
-          📖 Open Khan Academy
-        </a>
-      </div>
-    </div>`;
-  });
-
-  el.innerHTML = html;
+  el.innerHTML = `<div style="text-align:center;padding:24px 16px">
+    <div style="font-size:2rem">💬</div>
+    <div style="font-size:1.05rem;font-weight:700;margin-top:12px;line-height:1.5;font-style:italic">"${quote.text}"</div>
+    <div style="font-size:0.82rem;color:var(--muted);margin-top:10px;font-weight:600">— ${quote.author}</div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════════════════════
-// TASK CHECKLIST
+// WEEKLY STUDY PLAN
 // ═══════════════════════════════════════════════════════
-function renderTasks(){
-  const today = todayStr();
-  const entry = getDayEntry(today);
-  const el = document.getElementById('taskList');
-  const tasks = getTasks();
-  const todayTasks = tasks[today] || {};
+const SUBJECT_INFO = {
+  math: {label:"Math 3 Honors", icon:"📐", cls:"subj-math"},
+  chem: {label:"Chemistry",     icon:"🧪", cls:"subj-chem"},
+  csp:  {label:"AP CSP",        icon:"💻", cls:"subj-csp"},
+  gov:  {label:"AP Gov",        icon:"⚖️", cls:"subj-gov"},
+};
 
-  if(!entry||entry.holiday||!entry.tasks){
-    el.innerHTML = `<div class="empty-log">No tasks for today 🎉</div>`;
-    updateProgress();
+// Weekly recurring plan, keyed by JS Date.getDay() (0=Sun ... 6=Sat)
+const WEEKLY_PLAN = {
+  0: [{s:"math",hours:1.5},{s:"chem",hours:1.5}], // Sunday
+  1: [{s:"math",hours:1.5},{s:"chem",hours:1.5}], // Monday
+  2: [{s:"math",hours:1.5},{s:"chem",hours:1.5}], // Tuesday
+  3: [{s:"math",hours:1.5},{s:"gov",hours:1.5}],  // Wednesday
+  4: [{s:"math",hours:1.5},{s:"gov",hours:1.5}],  // Thursday
+  5: [{s:"math",hours:1.5},{s:"csp",hours:1.5}],  // Friday
+  6: null, // Saturday — free day
+};
+
+function renderTasks(){
+  const el = document.getElementById('taskList');
+  const day = new Date(todayStr()+'T12:00:00').getDay();
+  const plan = WEEKLY_PLAN[day];
+
+  if(!plan){
+    el.innerHTML = `<div style="text-align:center;padding:24px 16px">
+      <div style="font-size:2rem">🎉</div>
+      <div style="margin-top:8px;font-weight:700">Free day — no studying today!</div>
+    </div>`;
     return;
   }
 
-  let html = `<div style="font-size:0.76rem;color:var(--muted);margin-bottom:10px">Tick off each task as you complete it. Progress saves automatically.</div>`;
-
-  entry.tasks.forEach((task,i)=>{
-    const key = `task_${i}`;
-    const done = todayTasks[key]||false;
-    const taskId = `cb_${i}`;
-    html += `<div class="task-item">
-      <input type="checkbox" class="task-cb" id="${taskId}" ${done?'checked':''} onchange="toggleTask('${today}',${i},this.checked)">
-      <label class="task-label ${done?'done':''}" for="${taskId}">${task}</label>
+  let html = '';
+  plan.forEach(({s,hours})=>{
+    const info = SUBJECT_INFO[s];
+    html += `<div class="subject-block ${info.cls}">
+      <h3>${info.icon} ${info.label}</h3>
+      <div class="topic">${hours}h focused study session</div>
     </div>`;
   });
 
-  // completion summary
-  const total = entry.tasks.length;
-  const done  = Object.values(todayTasks).filter(Boolean).length;
+  const total = plan.reduce((sum,p)=>sum+p.hours,0);
   html += `<div style="margin-top:14px;padding:10px 14px;background:#f8f9fa;border-radius:8px;font-size:0.8rem;display:flex;align-items:center;gap:8px">
-    <span>${done===total?'🏆':'📌'}</span>
-    <span><strong>${done}/${total}</strong> tasks completed today</span>
-    ${done===total?'<span style="color:var(--green);font-weight:700">All done! Great work! 🎉</span>':''}
+    <span>📌</span>
+    <span><strong>${total}h</strong> total study time today</span>
   </div>`;
 
   el.innerHTML = html;
-  updateProgress();
-}
-
-function toggleTask(date, idx, checked){
-  const tasks = getTasks();
-  if(!tasks[date]) tasks[date] = {};
-  tasks[date][`task_${idx}`] = checked;
-  saveTasks(tasks);
-  renderTasks();
-
-  // update label style
-  const label = document.querySelector(`label[for="cb_${idx}"]`);
-  if(label) label.className = `task-label ${checked?'done':''}`;
 }
 
 function updateProgress(){
@@ -842,10 +829,10 @@ function renderWeekStrip(){
   const tasks = getTasks();
   const logs  = getLogs();
 
-  // find week days (Mon–Fri) in current week
+  // find all 7 days (Mon–Sun) in current week
   const days = [];
   const mon = new Date(ws+'T12:00:00');
-  for(let i=0;i<5;i++){
+  for(let i=0;i<7;i++){
     const d = new Date(mon);
     d.setDate(mon.getDate()+i);
     days.push(d.toISOString().slice(0,10));
@@ -859,10 +846,11 @@ function renderWeekStrip(){
 
     if(!entry){
       const dt = new Date(d+'T12:00:00');
-      html += `<div class="week-day" style="color:var(--muted)">
+      html += `<div class="week-day ${isToday?'today':''}" style="${isToday?'':'color:var(--muted)'}">
         <div class="wd-name">${dt.toLocaleDateString('en-US',{weekday:'short'})}</div>
         <div class="wd-date">${dt.getDate()}</div>
-        <div class="wd-subj" style="color:#ccc">—</div>
+        <div class="wd-subj" style="color:${isToday?'rgba(255,255,255,0.9)':'#ccc'}">—</div>
+        ${isToday?'<div style="font-size:0.65rem;color:white;font-weight:800;margin-top:2px">TODAY</div>':''}
       </div>`;
       return;
     }
@@ -880,7 +868,7 @@ function renderWeekStrip(){
       ${entry.holiday?'<div class="wd-subj">🎆 Holiday</div>':''}
       ${s1?`<div class="wd-subj" style="color:${s1==='math'?'var(--math-text)':s1==='chem'?'var(--chem-text)':s1==='csp'?'var(--csp-text)':'var(--gov-text)'}">${s1.toUpperCase()}</div>`:''}
       ${s2?`<div class="wd-subj" style="color:${s2==='math'?'var(--math-text)':s2==='chem'?'var(--chem-text)':s2==='csp'?'var(--csp-text)':'var(--gov-text)'}">${s2.toUpperCase()}</div>`:''}
-      ${isToday?'<div style="font-size:0.65rem;color:var(--navy);font-weight:800;margin-top:2px">TODAY</div>':''}
+      ${isToday?'<div style="font-size:0.65rem;color:white;font-weight:800;margin-top:2px">TODAY</div>':''}
       ${loggedToday&&!isToday?'<div style="font-size:0.7rem;color:var(--green)">✓ Done</div>':''}
     </div>`;
   });
@@ -896,6 +884,7 @@ async function init(){
   await initServerSync();
   renderTodayPlan();
   renderTasks();
+  updateProgress();
   updateStats();
   renderWeekStrip();
 }
