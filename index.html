@@ -436,7 +436,13 @@ const SUBJ_TARGETS = {math:"1h 30m",chem:"1h 30m",csp:"1h 30m",gov:"1h 30m"};
 // ═══════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════
-function todayStr(){ return new Date().toISOString().slice(0,10); }
+function todayStr(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 
 function fmtTime(sec){
   const h = Math.floor(sec/3600);
