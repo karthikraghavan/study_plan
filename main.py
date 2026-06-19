@@ -27,9 +27,23 @@ async def load_logs():
 
 @app.post('/save-logs')
 async def save_logs(request: Request):
-    logs = await request.json()
+    incoming = await request.json()
+    existing = []
+    if os.path.exists(LOGS_PATH):
+        try:
+            with open(LOGS_PATH, 'r') as f:
+                existing = json.load(f)
+        except Exception:
+            existing = []
+
+    def fp(e):
+        return (e.get('date', ''), e.get('subject', ''), e.get('min', 0), e.get('time', ''))
+
+    incoming_fps = {fp(e) for e in incoming}
+    merged = incoming + [e for e in existing if fp(e) not in incoming_fps]
+
     with open(LOGS_PATH, 'w') as f:
-        json.dump(logs, f, indent=2)
+        json.dump(merged, f, indent=2)
     return JSONResponse({'status': 'saved'})
 
 @app.get('/')
